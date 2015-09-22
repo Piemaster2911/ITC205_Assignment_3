@@ -1,5 +1,6 @@
 package library.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import library.interfaces.entities.EMemberState;
@@ -34,7 +35,7 @@ public class Member implements IMember {
             this.emailAddress = ea;
             this.id = idn;
             this.finesPayable = 0.00f;
-            
+            this.loans = new ArrayList<ILoan>();
         }
         
     }

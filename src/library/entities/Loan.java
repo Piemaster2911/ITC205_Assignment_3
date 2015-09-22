@@ -63,6 +63,7 @@ public class Loan implements ILoan {
             }
         }
         else {
+            this.loanID = id;
             this.borrowState = ELoanState.CURRENT;
             this.book.borrow(this);
             this.borrower.addLoan(this);
