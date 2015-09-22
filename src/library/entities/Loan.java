@@ -16,6 +16,14 @@ public class Loan implements ILoan {
     Date dueDate;
     int loanID;
     
+    public ELoanState getState() {
+        return this.borrowState;
+    }
+    
+    public void setState(ELoanState e) {
+        this.borrowState = e;
+    }
+    
     public Loan (IBook ib, IMember im, Date bd, Date dd, int li) {
         if(ib == null || im == null || bd == null || dd == null) {
             try {
@@ -33,7 +41,7 @@ public class Loan implements ILoan {
                 e.printStackTrace();
             }
         }
-        else if(loanID <= 0) {
+        else if(li <= 0) {
             try {
                 System.err.print("Loan ID cannot be at or below 0!");
                 throw new Exception();
@@ -53,7 +61,6 @@ public class Loan implements ILoan {
 
     @Override
     public void commit(int id) {
-        // TODO Auto-generated method stub
         if(this.borrowState != ELoanState.PENDING) {
             try {
                 System.err.print("This loan is not valid - Loan State not pending!");
@@ -63,8 +70,8 @@ public class Loan implements ILoan {
             }
         }
         else {
-            this.loanID = id;
             this.borrowState = ELoanState.CURRENT;
+            this.loanID = id;
             this.book.borrow(this);
             this.borrower.addLoan(this);
         }
@@ -73,7 +80,6 @@ public class Loan implements ILoan {
 
     @Override
     public void complete() {
-        // TODO Auto-generated method stub
         if(this.borrowState != ELoanState.CURRENT || this.borrowState != ELoanState.OVERDUE) {
             try {
                 System.err.print("Loan state not current or overdue! Cannot complete!");
@@ -99,8 +105,20 @@ public class Loan implements ILoan {
 
     @Override
     public boolean checkOverDue(Date currentDate) {
+        
         if(currentDate.after(this.dueDate)) {
+            if(this.borrowState != ELoanState.OVERDUE)
+                this.borrowState = ELoanState.OVERDUE;
             return true;
+        }
+        else if(this.borrowState != ELoanState.CURRENT || this.borrowState != ELoanState.OVERDUE) {
+            try {
+                System.err.print("Loan state not current or overdue! Cannot complete!");
+                throw new RuntimeException();
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+            return false;
         }
         else {
             return false;
@@ -109,19 +127,16 @@ public class Loan implements ILoan {
 
     @Override
     public IMember getBorrower() {
-        // TODO Auto-generated method stub
         return borrower;
     }
 
     @Override
     public IBook getBook() {
-        // TODO Auto-generated method stub
         return book;
     }
 
     @Override
     public int getID() {
-        // TODO Auto-generated method stub
         return loanID;
     }
 

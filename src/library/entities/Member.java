@@ -42,14 +42,20 @@ public class Member implements IMember {
 
     @Override
     public boolean hasOverDueLoans() {
-       //
-        return false;
+        boolean hasOverDueLoans = false;
+       for(int i = 0; i < loans.size(); i++) {
+           if(loans.get(i).isOverDue())
+               hasOverDueLoans = true;
+       }
+       return hasOverDueLoans;
     }
 
     @Override
     public boolean hasReachedLoanLimit() {
-        
-        return false;
+        if(finesPayable >= IMember.LOAN_LIMIT)
+            return true;
+        else
+            return false;
     }
 
     @Override
