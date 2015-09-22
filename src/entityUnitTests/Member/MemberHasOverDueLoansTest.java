@@ -30,11 +30,10 @@ public class MemberHasOverDueLoansTest {
         Member testMember = member;
         Loan loan1 = new Loan(book1, testMember, Date.valueOf("2015-09-19"), Date.valueOf("2015-10-03"), 1);
         
-        loan1.commit(1);
-        
         testMember.addLoan(loan1);
         boolean overdue = false;
         
+        testMember.getLoans().get(0).commit(1);
         testMember.getLoans().get(0).checkOverDue(Date.valueOf("2015-09-22"));
         if(testMember.getLoans().get(0).isOverDue())
             overdue = true;
@@ -61,14 +60,11 @@ public class MemberHasOverDueLoansTest {
         Member testMember = member;
         Loan loan1 = new Loan(book1, testMember, Date.valueOf("2015-09-19"), Date.valueOf("2015-10-03"), 1);
         
-        loan1.commit(1);
-        
-        System.out.println(loan1.getState().toString());
-        
         testMember.addLoan(loan1);
         
         boolean overdue = false;
         
+        testMember.getLoans().get(0).commit(1);
         testMember.getLoans().get(0).checkOverDue(Date.valueOf("2018-10-22"));
         if(testMember.getLoans().get(0).isOverDue())
             overdue = true;
@@ -85,7 +81,7 @@ public class MemberHasOverDueLoansTest {
                     " does not have overdue books!");
         
         // now check if test member has any over due loans
-        assertFalse(testMember.hasOverDueLoans());
+        assertTrue(testMember.hasOverDueLoans());
     }
 
 }
