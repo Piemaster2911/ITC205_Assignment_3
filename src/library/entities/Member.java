@@ -52,7 +52,7 @@ public class Member implements IMember {
 
     @Override
     public boolean hasReachedLoanLimit() {
-        if(finesPayable >= IMember.LOAN_LIMIT)
+        if(loans.size() >= IMember.LOAN_LIMIT)
             return true;
         else
             return false;

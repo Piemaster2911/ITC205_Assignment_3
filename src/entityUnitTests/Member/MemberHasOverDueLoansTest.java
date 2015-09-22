@@ -3,19 +3,15 @@ package entityUnitTests.Member;
 import static org.junit.Assert.*;
 
 import java.sql.Date;
-import java.util.List;
 
 import library.entities.Book;
 import library.entities.Loan;
 import library.entities.Member;
 import library.interfaces.entities.ILoan;
-import library.interfaces.entities.IMember;
 
 import org.junit.Test;
 
 public class MemberHasOverDueLoansTest {
-    
-    boolean hasOverDueLoans = false;
     
     Member member = new Member("Bob", "Smith", "012345678", "email@webmail.com", 1);
     
@@ -28,7 +24,7 @@ public class MemberHasOverDueLoansTest {
     @Test
     public void testMemberDoesNotHaveOverDueLoans() {
         Member testMember = member;
-        Loan loan1 = new Loan(book1, testMember, Date.valueOf("2015-09-19"), Date.valueOf("2015-10-03"), 1);
+        ILoan loan1 = new Loan(book1, testMember, Date.valueOf("2015-09-19"), Date.valueOf("2015-10-03"), 1);
         
         testMember.addLoan(loan1);
         boolean overdue = false;
@@ -43,7 +39,7 @@ public class MemberHasOverDueLoansTest {
         
         if(overdue)
             System.out.println("Member " + testMember.getFirstName() + " " + testMember.getLastName() + 
-                    " have overdue books!");
+                    " has overdue books!");
         
         else
             System.out.println("Member " + testMember.getFirstName() + " " + testMember.getLastName() + 
@@ -54,11 +50,14 @@ public class MemberHasOverDueLoansTest {
         
     }
     
-    
+    /**
+     * This test will check for a member who does have overdue loans.
+     * The test is successful only if the member has any overdue loans.
+     */
     @Test
     public void testMemberHasOverDueBooks() {
         Member testMember = member;
-        Loan loan1 = new Loan(book1, testMember, Date.valueOf("2015-09-19"), Date.valueOf("2015-10-03"), 1);
+        ILoan loan1 = new Loan(book1, testMember, Date.valueOf("2015-09-19"), Date.valueOf("2015-10-03"), 1);
         
         testMember.addLoan(loan1);
         
@@ -74,7 +73,7 @@ public class MemberHasOverDueLoansTest {
         
         if(overdue)
             System.out.println("Member " + testMember.getFirstName() + " " + testMember.getLastName() + 
-                    " have overdue books!");
+                    " has overdue books!");
         
         else
             System.out.println("Member " + testMember.getFirstName() + " " + testMember.getLastName() + 
