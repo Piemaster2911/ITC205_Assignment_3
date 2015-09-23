@@ -13,9 +13,9 @@ public class MemberHasReachedFineLimitTest {
      * successful only if the member has not exceeded loan limit.
      */
     @Test
-    public void testMemberHasPayableNotReachedLoanLimit() {
-        System.out.println("This test will demonstrate if member has no fines. "
-                + "\nThe test will be valid and successful if the member has no fines.");
+    public void testMemberHasPayableNotReachedFinesLimit() {
+        System.out.println("This test will demonstrate if member has not reached the fines limit. "
+                + "\nThe test will be valid and successful if the member has not exceeded the fines limit.");
         Member testMember = member;
         testMember.addFine(5f);
         boolean condition = testMember.hasReachedFineLimit();
@@ -35,9 +35,9 @@ public class MemberHasReachedFineLimitTest {
      * successful only if the member has exceeded loan limit.
      */
     @Test
-    public void testMemberHasPayableReachedLoanLimit() {
-        System.out.println("This test will demonstrate if member has no fines. "
-                + "\nThe test will be valid and successful if the member has no fines.");
+    public void testMemberHasPayableReachedFinesLimit() {
+        System.out.println("This test will demonstrate if member has exceeded the fines limit. "
+                + "\nThe test will be valid and successful if the member exceeds the fines limit.");
         Member testMember = member;
         testMember.addFine(13f);
         boolean condition = testMember.hasReachedFineLimit();
