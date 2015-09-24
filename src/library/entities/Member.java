@@ -15,7 +15,7 @@ public class Member implements IMember {
     String contactPhone;
     String emailAddress;
     int id;
-    float finesPayable;
+    float totalFines;
     List<ILoan> loans;
     
     public Member(String fn, String ln, String cp, String ea, int idn){
@@ -23,8 +23,8 @@ public class Member implements IMember {
             try {
                 throw new Exception();
             } catch (Exception e) {
-                System.err.print("Cannot enter a member who has no first name, last name, or contact number!");
-                e.printStackTrace();
+                System.err.println("Cannot enter a member who has no first name, last name, or contact number!");
+          //      e.printStackTrace();
             }
         }
         else {
@@ -34,7 +34,7 @@ public class Member implements IMember {
             this.contactPhone = cp;
             this.emailAddress = ea;
             this.id = idn;
-            this.finesPayable = 0.00f;
+            this.totalFines = 0.00f;
             this.loans = new ArrayList<ILoan>();
         }
         
@@ -60,7 +60,7 @@ public class Member implements IMember {
 
     @Override
     public boolean hasFinesPayable() {
-        if(finesPayable > 0f){
+        if(totalFines > 0f){
             return true;
         }
         else {
@@ -70,7 +70,7 @@ public class Member implements IMember {
 
     @Override
     public boolean hasReachedFineLimit() {
-        if(finesPayable > IMember.FINE_LIMIT) {
+        if(totalFines > IMember.FINE_LIMIT) {
             return true;
         }
         else {
@@ -80,7 +80,7 @@ public class Member implements IMember {
 
     @Override
     public float getFineAmount() {
-        return finesPayable;
+        return totalFines;
     }
 
     @Override
@@ -89,12 +89,12 @@ public class Member implements IMember {
             try {
                 throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
-                System.err.print("Fines must not be of negative value!");
-                e.printStackTrace();
+                System.err.println("Fines must not be of negative value!");
+            //    e.printStackTrace();
             }
         }
         else {
-            this.finesPayable += fine;
+            this.totalFines += fine;
         }
     }
 
@@ -104,20 +104,20 @@ public class Member implements IMember {
             try {
                 throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
-                System.err.print("Fine Payments must not be of negative value!");
-                e.printStackTrace();
+                System.err.println("Fine Payments must not be of negative value!");
+            //    e.printStackTrace();
             }
         }
-        else if(payment > this.finesPayable) {
+        else if(payment > this.totalFines) {
             try {
                 throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
-                System.err.print("Fines must not exceed the cost of fine!");
-                e.printStackTrace();
+                System.err.println("Payment must not exceed the cost of fine!");
+             //   e.printStackTrace();
             }
         }
         else {
-            this.finesPayable -= payment;
+            this.totalFines -= payment;
         }
     }
 
@@ -127,16 +127,16 @@ public class Member implements IMember {
             try {
                 throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
-                System.err.print("Loan added is null! Cannot proceed!");
-                e.printStackTrace();
+                System.err.println("Loan added is null! Cannot proceed!");
+             //   e.printStackTrace();
             }
         }
         else if(this.memberState == EMemberState.BORROWING_DISALLOWED) {
             try {
                 throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
-                System.err.print("Borrower cannot be loaned because borrowing is disallowed for this member!");
-                e.printStackTrace();
+                System.err.println("Borrower cannot be loaned because borrowing is disallowed for this member!");
+             //   e.printStackTrace();
             }
         }
         else {

@@ -3,7 +3,6 @@ package library.daos;
 import java.util.ArrayList;
 import java.util.List;
 
-import library.entities.Book;
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.IBookHelper;
 import library.interfaces.entities.IBook;

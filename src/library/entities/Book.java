@@ -18,16 +18,16 @@ public class Book implements IBook {
             try {
                 throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
-                System.err.print("Book author name, title name, or contact number is absent! This is not valid!");
-                e.printStackTrace();
+                System.err.println("Book author name, title name, or contact number is absent! This is not valid!");
+     //           e.printStackTrace();
             }
         }
         else if(bi <= 0) {
             try {
                 throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
-                System.err.print("Book ID is not valid! Value must be above 0!");
-                e.printStackTrace();
+                System.err.println("Book ID is not valid! Value must be above 0!");
+      //          e.printStackTrace();
             }
         }
         else {
@@ -45,8 +45,8 @@ public class Book implements IBook {
             try {
                 throw new RuntimeException();
             } catch (RuntimeException e) {
-                System.err.print("The book is not available!");
-                e.printStackTrace();
+                System.err.println("The book is not available!");
+      //          e.printStackTrace();
             }
         }
         else {
@@ -60,8 +60,8 @@ public class Book implements IBook {
             try {
                 throw new RuntimeException();
             } catch (RuntimeException e) {
-                System.err.print("The book is not on loan!");
-                e.printStackTrace();
+                System.err.println("The book is not on loan!");
+      //          e.printStackTrace();
                 return null;
             }
         }
@@ -76,8 +76,8 @@ public class Book implements IBook {
             try {
                 throw new RuntimeException();
             } catch (RuntimeException e) {
-                System.err.print("The book is not on loan!");
-                e.printStackTrace();
+                System.err.println("The book is not on loan!");
+      //          e.printStackTrace();
             }
         }
         else {
@@ -98,8 +98,8 @@ public class Book implements IBook {
             try {
                 throw new RuntimeException();
             } catch (RuntimeException e) {
-                System.err.print("The book is not available!");
-                e.printStackTrace();
+                System.err.println("The book is not available!");
+      //          e.printStackTrace();
             }
         }
         else {
@@ -113,8 +113,8 @@ public class Book implements IBook {
             try {
                 throw new RuntimeException();
             } catch (RuntimeException e) {
-                System.err.print("The book is not damaged!");
-                e.printStackTrace();
+                System.err.println("The book is not damaged!");
+       //         e.printStackTrace();
             }
         }
         else {
@@ -128,16 +128,16 @@ public class Book implements IBook {
             try {
                 throw new RuntimeException();
             } catch (RuntimeException e) {
-                System.err.print("The book cannot be disposed! Book is currently on loan!");
-                e.printStackTrace();
+                System.err.println("The book cannot be disposed! Book is currently on loan!");
+       //         e.printStackTrace();
             }
         }
         else if(this.bookState == EBookState.DISPOSED) {
             try {
                 throw new RuntimeException();
             } catch (RuntimeException e) {
-                System.err.print("The book is already disposed!");
-                e.printStackTrace();
+                System.err.println("The book is already disposed!");
+        //        e.printStackTrace();
             }
         }
         else {
