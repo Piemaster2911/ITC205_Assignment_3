@@ -29,7 +29,7 @@ public class MemberDAO implements IMemberDAO {
     @Override
     public IMember addMember(String firstName, String lastName,
             String contactPhone, String emailAddress) {
-        IMember member = this.helper.makeMember(firstName, lastName, contactPhone, emailAddress, members.size());
+        IMember member = this.helper.makeMember(firstName, lastName, contactPhone, emailAddress, members.size() + 1);
         members.add(member);
         return member;
     }
