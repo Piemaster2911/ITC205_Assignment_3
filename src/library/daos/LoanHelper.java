@@ -10,11 +10,11 @@ import library.interfaces.entities.IMember;
 
 public class LoanHelper implements ILoanHelper {
 
-    @Override
-    public ILoan makeLoan(IBook book, IMember borrower, Date borrowDate,
-            Date dueDate) {
-        ILoan loan = new Loan(book, borrower, borrowDate, dueDate, 0);
-        return loan;
-    }
+	@Override
+	public ILoan makeLoan(IBook book, IMember borrower, Date borrowDate,
+			Date dueDate) {
+
+		return new Loan(book, borrower, borrowDate, dueDate);
+	}
 
 }

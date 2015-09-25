@@ -6,168 +6,134 @@ import library.interfaces.entities.ILoan;
 
 public class Book implements IBook {
 
-    ILoan loan;
-    String author;
-    String title;
-    String callNumber;
-    int bookID;
-    EBookState bookState;
-    
-    public Book (String an, String tn, String cn, int bi) {
-        if(an == null || tn == null || cn == null ) {
-            try {
-                throw new IllegalArgumentException();
-            } catch (IllegalArgumentException e) {
-                System.err.println("Book author name, title name, or contact number is absent! This is not valid!");
-     //           e.printStackTrace();
-            }
-        }
-        else if(bi <= 0) {
-            try {
-                throw new IllegalArgumentException();
-            } catch (IllegalArgumentException e) {
-                System.err.println("Book ID is not valid! Value must be above 0!");
-      //          e.printStackTrace();
-            }
-        }
-        else {
-            this.author = an;
-            this.title = tn;
-            this.callNumber = cn;
-            this.bookID = bi;
-            this.bookState = EBookState.AVAILABLE;
-        }
-    }
+	
+	private String author;
+	private String title;
+	private String callNumber;
+	private int id;
+	
+	private ILoan loan;
+	private EBookState state;
+	
+	
+	public Book(String author, String title, String callNumber, int bookID) {
+		if ( !sane(author, title, callNumber, bookID)) {
+			throw new IllegalArgumentException("Member: constructor : bad parameters");
+		}
+		this.author = author;
+		this.title = title;
+		this.callNumber = callNumber;
+		this.id = bookID;
+		this.state = EBookState.AVAILABLE;
+		this.loan = null;
+	}
 
-    @Override
-    public void borrow(ILoan loan) {
-        if(this.bookState != EBookState.AVAILABLE) {
-            try {
-                throw new RuntimeException();
-            } catch (RuntimeException e) {
-                System.err.println("The book is not available!");
-      //          e.printStackTrace();
-            }
-        }
-        else {
-            this.loan = loan;
-        }
-    }
 
-    @Override
-    public ILoan getLoan() {
-        if(this.bookState != EBookState.ON_LOAN) {
-            try {
-                throw new RuntimeException();
-            } catch (RuntimeException e) {
-                System.err.println("The book is not on loan!");
-      //          e.printStackTrace();
-                return null;
-            }
-        }
-        else {
-            return loan;
-        }    
-    }
+	private boolean sane(String author, String title, String callNumber, int bookID) {
+		return  ( author != null     && !author.isEmpty()     &&
+				  title != null      && !title.isEmpty()      &&
+				  callNumber != null && !callNumber.isEmpty() &&
+				  bookID > 0 
+				);
+	}
 
-    @Override
-    public void returnBook(boolean damaged) {
-        if(this.bookState != EBookState.ON_LOAN) {
-            try {
-                throw new RuntimeException();
-            } catch (RuntimeException e) {
-                System.err.println("The book is not on loan!");
-      //          e.printStackTrace();
-            }
-        }
-        else {
-            this.loan.complete();
-            if(damaged) {
-                this.bookState = EBookState.DAMAGED;
-            }
-            else {
-                this.bookState = EBookState.AVAILABLE;
-            }
-        }
-        
-    }
+	
+	@Override
+	public void borrow(ILoan loan) {
+		if (loan == null) {
+			throw new IllegalArgumentException(String.format("Book: borrow : Bad parameter: loan cannot be null"));
+		}
+		if (!(state == EBookState.AVAILABLE)) {
+			throw new RuntimeException(String.format("Illegal operation in state : %s", state));
+		}
+		this.loan = loan;
+		state = EBookState.ON_LOAN;
 
-    @Override
-    public void lose() {
-        if(this.bookState != EBookState.ON_LOAN) {
-            try {
-                throw new RuntimeException();
-            } catch (RuntimeException e) {
-                System.err.println("The book is not available!");
-      //          e.printStackTrace();
-            }
-        }
-        else {
-            this.bookState = EBookState.LOST;
-        }
-    }
+	}
 
-    @Override
-    public void repair() {
-        if(this.bookState != EBookState.DAMAGED) {
-            try {
-                throw new RuntimeException();
-            } catch (RuntimeException e) {
-                System.err.println("The book is not damaged!");
-       //         e.printStackTrace();
-            }
-        }
-        else {
-            this.bookState = EBookState.AVAILABLE;
-        }
-    }
+	
+	@Override
+	public ILoan getLoan() {
+		return loan;
+	}
 
-    @Override
-    public void dispose() {
-        if(this.bookState == EBookState.ON_LOAN) {
-            try {
-                throw new RuntimeException();
-            } catch (RuntimeException e) {
-                System.err.println("The book cannot be disposed! Book is currently on loan!");
-       //         e.printStackTrace();
-            }
-        }
-        else if(this.bookState == EBookState.DISPOSED) {
-            try {
-                throw new RuntimeException();
-            } catch (RuntimeException e) {
-                System.err.println("The book is already disposed!");
-        //        e.printStackTrace();
-            }
-        }
-        else {
-            this.bookState = EBookState.DISPOSED;
-        }
-    }
+	
+	@Override
+	public void returnBook(boolean damaged) {
+		if (!(state == EBookState.ON_LOAN || state == EBookState.LOST)) {
+			throw new RuntimeException(String.format("Illegal operation in state : %s", state));
+		}
+		loan = null;
+		if (damaged) {
+			state = EBookState.DAMAGED;
+		}
+		else {
+			state = EBookState.AVAILABLE;
+		}
+	}
 
-    @Override
-    public EBookState getState() {
-        return this.bookState;
-    }
+	
+	@Override
+	public void lose() {
+		if (!(state == EBookState.ON_LOAN)) {
+			throw new RuntimeException(String.format("Illegal operation in state : %s", state));
+		}
+		state = EBookState.LOST;
+	}
 
-    @Override
-    public String getAuthor() {
-        return this.author;
-    }
+	
+	@Override
+	public void repair() {
+		if (!(state == EBookState.DAMAGED)) {
+			throw new RuntimeException(String.format("Illegal operation in state : %s", state));
+		}
+		state = EBookState.AVAILABLE;
+	}
 
-    @Override
-    public String getTitle() {
-        return this.title;
-    }
+	
+	@Override
+	public void dispose() {
+		if (!(state == EBookState.AVAILABLE || state == EBookState.DAMAGED || state == EBookState.LOST)) {
+			throw new RuntimeException(String.format("Illegal operation in state : %s", state));
+		}
+		state = EBookState.DISPOSED;
+	}
 
-    @Override
-    public String getCallNumber() {
-        return this.callNumber;
-    }
+	
+	@Override
+	public EBookState getState() {
+		return state;
+	}
 
-    @Override
-    public int getID() {
-        // TODO Auto-generated method stub
-        return bookID;
-    }
+	
+	@Override
+	public String getAuthor() {
+		return author;
+	}
+
+	
+	@Override
+	public String getTitle() {
+		return title;
+	}
+
+	
+	@Override
+	public String getCallNumber() {
+		return callNumber;
+	}
+
+	
+	@Override
+	public int getID() {
+		return id;
+	}
+
+	
+	@Override
+	public String toString() {
+		return String.format("Id: %d\nAuthor: %s\nTitle: %s\nCall Number %s",
+				id, author, title, callNumber);
+	}
+
 }
