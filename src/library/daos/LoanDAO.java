@@ -61,7 +61,7 @@ public class LoanDAO implements ILoanDAO {
 
     @Override
     public void commitLoan(ILoan loan) {
-        int r = (int) Math.random();
+        int r = (int) Math.random() + 1;
         loan.commit(r);
         loans.add(loan);
     }

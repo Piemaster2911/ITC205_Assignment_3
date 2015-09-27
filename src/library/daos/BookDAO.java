@@ -29,7 +29,7 @@ public class BookDAO implements IBookDAO {
     @Override
     public IBook addBook(String author, String title, String callNo) {
         
-        IBook book = this.helper.makeBook(author, title, callNo, books.size());
+        IBook book = this.helper.makeBook(author, title, callNo, books.size() + 1);
         books.add(book);
         return book;
     }

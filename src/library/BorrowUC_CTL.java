@@ -11,7 +11,9 @@ import library.interfaces.IBorrowUIListener;
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.ILoanDAO;
 import library.interfaces.daos.IMemberDAO;
+import library.panels.borrow.ScanningPanel;
 import library.interfaces.entities.EBookState;
+import library.interfaces.entities.EMemberState;
 import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
@@ -21,6 +23,7 @@ import library.interfaces.hardware.IDisplay;
 import library.interfaces.hardware.IPrinter;
 import library.interfaces.hardware.IScanner;
 import library.interfaces.hardware.IScannerListener;
+import library.panels.borrow.ScanningPanel;
 
 public class BorrowUC_CTL implements ICardReaderListener, 
 									 IScannerListener, 
@@ -49,14 +52,32 @@ public class BorrowUC_CTL implements ICardReaderListener,
 			IPrinter printer, IDisplay display,
 			IBookDAO bookDAO, ILoanDAO loanDAO, IMemberDAO memberDAO ) {
 
+	    reader.addListener(this);
+	    scanner.addListener(this);
+	    
 		this.display = display;
 		this.ui = new BorrowUC_UI(this);
+		this.reader = reader;
+		this.scanner = scanner;
+		this.printer = printer;
+		this.memberDAO = memberDAO;
+		this.loanDAO = loanDAO;
+		this.bookDAO = bookDAO;
 		state = EBorrowState.CREATED;
 	}
 	
 	public void initialise() {
+	    if(state != EBorrowState.CREATED) {
+	        throw new RuntimeException("Borrow Book already created!");
+	    }
+	    
 		previous = display.getDisplay();
-		display.setDisplay((JPanel) ui, "Borrow UI");		
+		display.setDisplay((JPanel) ui, "Borrow UI");
+		//display.setDisplay();
+		
+		reader.setEnabled(true);
+		scanner.setEnabled(false);
+		state = EBorrowState.INITIALIZED;
 	}
 	
 	public void close() {
@@ -65,7 +86,19 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 	@Override
 	public void cardSwiped(int memberID) {
-		throw new RuntimeException("Not implemented yet");
+	    if(state != EBorrowState.INITIALIZED) {
+	        throw new RuntimeException("Borrow Book State not initialized!");
+	    }
+	    if(memberDAO == null) {
+	        throw new RuntimeException("Member Database does not exist or not initialized!");
+	    }
+	    if(reader == null) {
+	        throw new RuntimeException("Reader nor initialized or enabled!");
+	    }
+	    
+	    if(memberDAO.getMemberByID(memberID).getState().equals(EMemberState.BORROWING_ALLOWED)) {
+	        
+	    }
 	}
 	
 	
