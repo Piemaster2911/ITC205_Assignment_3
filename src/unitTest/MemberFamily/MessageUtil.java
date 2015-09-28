@@ -1,4 +1,4 @@
-package entityUnitTests.Member;
+package unitTest.MemberFamily;
 
 public class MessageUtil {
     private String message;

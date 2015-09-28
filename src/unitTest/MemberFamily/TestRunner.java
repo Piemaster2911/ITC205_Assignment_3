@@ -1,4 +1,4 @@
-package entityUnitTests.Member;
+package unitTest.MemberFamily;
 
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;

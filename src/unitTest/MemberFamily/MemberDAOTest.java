@@ -1,4 +1,4 @@
-package entityUnitTests.Member;
+package unitTest.MemberFamily;
 
 import static org.junit.Assert.*;
 
