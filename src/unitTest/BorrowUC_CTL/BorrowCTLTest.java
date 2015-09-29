@@ -9,6 +9,7 @@ import org.easymock.EasyMock;
 
 import static org.junit.Assert.*;
 import library.BorrowUC_CTL;
+import library.entities.Loan;
 import library.entities.Member;
 import library.hardware.CardReader;
 import library.hardware.Display;
@@ -52,8 +53,8 @@ public class BorrowCTLTest {
 
     @Before
     public void setUp() throws Exception {
-        reader = new CardReader(); // not easy to mock it, so I did this for now
-        scanner = new Scanner(); // not easy to mock it, so I did this for now
+        reader = EasyMock.createMock(ICardReader.class); 
+        scanner = EasyMock.createMock(IScanner.class); 
         printer = EasyMock.createMock(IPrinter.class);
         display = EasyMock.createNiceMock(IDisplay.class); // not easy to mock due to not being able to 
         // figure how to mock parameterized functions, so used actual class for now
@@ -107,7 +108,7 @@ public class BorrowCTLTest {
         
         System.out.println("\nThis test demonstrates if the setReader boolean value is valid - i.e. true.");
         
-        reader.setEnabled(setReader);
+   //     reader.setEnabled(setReader);
         
         if(setReader != true) {
             testValid = false;
@@ -127,7 +128,7 @@ public class BorrowCTLTest {
         
         System.out.println("\nThis test will demonstrate if the setScanner boolean value is valid - i.e. false.");
         
-        scanner.setEnabled(setScanner);
+       // scanner.setEnabled(setScanner);
 
         if(setScanner != false) {
             testValid = false;
@@ -293,8 +294,8 @@ public class BorrowCTLTest {
     }
 
     @Test
-    public void testBookScanned() {
-        IBook book = EasyMock.createNiceMock(IBook.class);
+    public void testBookScannedCheckExist() {
+        IBook book = EasyMock.createMock(IBook.class);
         boolean testValid = true;
         
         System.out.println("\nThis test demonstrates the BookScanned function process,"
@@ -309,7 +310,36 @@ public class BorrowCTLTest {
         else
             System.out.println("Book exists! -- PASS");
         
-        System.out.println("Now we check if the book is available. This test is true if"
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testBookScannedCheckDoesNotExist() {
+        IBook book = null;
+        boolean testValid = true;
+        
+        System.out.println("\nThis test demonstrates the BookScanned function process,"
+                + "\nwhich involves a number of checks. In this case, we first check if"
+                + "\nthe book given by a barcode number exists, which should be false"
+                + "\nin this case.");
+        
+        if(book != null) {
+            testValid = false;
+            System.out.println("Book exist where it is not supposed to exist! -- FAIL");
+        }
+        else
+            System.out.println("Book does not exists! -- PASS");
+        
+        assertTrue(testValid);
+    }
+
+    
+    @Test
+    public void testBookScannedStateValid() {
+        IBook book = EasyMock.createMock(IBook.class);
+        boolean testValid = true;
+        
+        System.out.println("\nNow we check if the book is available. This test is true if"
                 + "\nit is of book state AVAILABLE.");
         
         EasyMock.expect(book.getState()).andReturn(EBookState.AVAILABLE);
@@ -323,22 +353,161 @@ public class BorrowCTLTest {
         }
         else
             System.out.println("Book state is AVAILABLE! -- PASS");
+  
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testBookScannedStateInvalid() {
+        IBook book = EasyMock.createMock(IBook.class);
+        boolean testValid = true;
+        
+        System.out.println("\nNow we check if the book is NOT available. This test is true if"
+                + "\nit is not of book state AVAILABLE.");
+        
+        EasyMock.expect(book.getState()).andReturn(EBookState.ON_LOAN);
+        EasyMock.replay(book);
+        
+        EBookState bookState = book.getState();
+        
+        if(bookState.equals(EBookState.AVAILABLE)) {
+            testValid = false;
+            System.out.println("Book state is AVAILABLE! -- FAIL");
+        }
+        else
+            System.out.println("Book state is not AVAILABLE! -- PASS");
+  
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testBookScannedNotExistLoanList() {
+        IBook book = EasyMock.createMock(IBook.class);
+        boolean testValid = true;
+        
+        System.out.println("\nThis test demonstrates a case where the book is not already"
+                + "\nunder pending loan of the user, simulated by an empty pending loan list"
+                + "\nand the user scanned the book.");
+        
+        if(_loanList.contains(book)) {
+            testValid = false;
+            System.out.println("loanList contains book when it should not! -- FAIL");
+        }
+        else
+            System.out.println("loanList does not contain book! -- PASS");
+        
+        assertTrue(testValid);
     }
 
-    @Test
+
+/*    @Test
     public void testCancelled() {
+    }*/
+
+    @Test
+    public void testScansCompletedCorrectState() {
+        _state = EBorrowState.CONFIRMING_LOANS;
+        boolean testValid = true;
+        
+        System.out.println("\nThis test demonstrates the change of state to"
+                + "\nCONFIRMING_LOANS. The result expected is the state requested.");
+        
+        if(!(_state.equals(EBorrowState.CONFIRMING_LOANS))) {
+            testValid = false;
+            System.out.println("Borrow state not CONFIRMING_LOANS! -- FAIL");
+        }
+        else
+            System.out.println("Borrow state is CONFIRMING_LOANS! -- PASS");
+        
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testScansCompletedInvalidState() {
+        _state = EBorrowState.INITIALIZED;
+        boolean testValid = true;
+        
+        System.out.println("\nThis test demonstrates the change of state to"
+                + "\nCONFIRMING_LOANS. The result expected is the state requested.");
+        
+        if(_state.equals(EBorrowState.CONFIRMING_LOANS)) {
+            testValid = false;
+            System.out.println("Borrow state is CONFIRMING_LOANS! -- FAIL");
+        }
+        else
+            System.out.println("Borrow state is not CONFIRMING_LOANS! -- PASS");
+        
+        assertTrue(testValid);
     }
 
     @Test
-    public void testScansCompleted() {
+    public void testLoansConfirmedLoanListNotEmpty() {
+        ILoan loan = EasyMock.createMock(ILoan.class);
+        _loanList.add(loan);
+        boolean testValid = true;
+        
+        System.out.println("\nThis test demonstrates a case where the confirmed"
+                + "\nloan list has a confirming loan list with loans in it.");
+        
+        if(_loanList.isEmpty()) {
+            testValid = false;
+            System.out.println("loanList is empty! -- FAIL");
+        }
+        else
+            System.out.println("loanList is not empty! -- PASS");
+        
+        assertTrue(testValid);
     }
-
+    
     @Test
-    public void testLoansConfirmed() {
+    public void testLoansConfirmedLoanListEmpty() {
+        _loanList = new ArrayList<ILoan>();
+        boolean testValid = true;
+        
+        System.out.println("\nThis test demonstrates an ideal case where the confirmed"
+                + "\nloan list has an empty confirming loans list.");
+        
+        if(!(_loanList.isEmpty())) {
+            testValid = false;
+            System.out.println("loanList is not empty! -- FAIL");
+        }
+        else
+            System.out.println("loanList is empty! -- PASS");
+        
+        assertTrue(testValid);
     }
 
     @Test
     public void testLoansRejected() {
+        boolean testValid = true;
+        
+        System.out.println("\nThis test simulates a loan rejection, which involves"
+                + "\nflushing and reinitializing the loanList, and setting the scanner"
+                + "\nand reader.");
+        _loanList = new ArrayList<ILoan>();
+        if(!(_loanList.isEmpty())) {
+            testValid = false;
+            System.out.println("loanList is not empty! -- FAIL");
+        }
+        else
+            System.out.println("loanList is empty! -- PASS");
+        
+        boolean setScanner = true;
+        boolean setReader = false;
+        
+        if(setScanner != true) {
+            testValid = false;
+            System.out.println("setScanner is not true! -- FAIL");
+        }
+        else
+            System.out.println("setScanner is true! -- PASS");
+        
+        if(setReader != false) {
+            testValid = false;
+            System.out.println("setReader is not false! -- FAIL");
+        }
+        else
+            System.out.println("setReader is false! -- PASS");
     }
 
 }
