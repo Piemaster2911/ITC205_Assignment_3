@@ -18,6 +18,7 @@ import library.interfaces.IBorrowUI;
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.ILoanDAO;
 import library.interfaces.daos.IMemberDAO;
+import library.interfaces.entities.EBookState;
 import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
@@ -41,12 +42,12 @@ public class BorrowCTLTest {
     ILoanDAO loanDAO;
     IMemberDAO memberDAO;
     int scanCount = 0;
-    private IBorrowUI ui;
-    private EBorrowState state; // this should not alter
-    private List<IBook> bookList;
-    private List<ILoan> loanList;
-    private IMember borrower;
-    private JPanel previous;
+    private IBorrowUI _ui;
+    private EBorrowState _state; // this should not alter
+    private List<IBook> _bookList;
+    private List<ILoan> _loanList;
+    private IMember _borrower;
+    private JPanel _previous;
     
 
     @Before
@@ -59,10 +60,10 @@ public class BorrowCTLTest {
         bookDAO = EasyMock.createMock(IBookDAO.class);
         loanDAO = EasyMock.createMock(ILoanDAO.class);
         memberDAO = EasyMock.createMock(IMemberDAO.class);
-        ui = EasyMock.createMock(IBorrowUI.class);
+        _ui = EasyMock.createMock(IBorrowUI.class);
         //bookList = new ArrayList<IBook>();
-        loanList = new ArrayList<ILoan>();
-        borrower = EasyMock.createMock(IMember.class);
+        _loanList = new ArrayList<ILoan>();
+        _borrower = EasyMock.createMock(IMember.class);
         
         borrowCTL = new BorrowUC_CTL(reader, scanner, printer, display, bookDAO, loanDAO, memberDAO);
     }
@@ -83,10 +84,10 @@ public class BorrowCTLTest {
     public void testInitialiseState() {        
         System.out.println("\nThis test demonstrates the initialise state of the class.");
         // set state
-        state = EBorrowState.CREATED;
+        _state = EBorrowState.CREATED;
         boolean testValid = true;
         
-        if(state.equals(EBorrowState.CREATED)) {
+        if(_state.equals(EBorrowState.CREATED)) {
             System.out.println("State is properly set for initialisation process! -- PASS");
         }
         else {
@@ -146,8 +147,8 @@ public class BorrowCTLTest {
         System.out.println("\nThis test will demonstrate whether or not the state has been "
                 + "\nchanged to meet the post-initialization requirements of the function");
         
-        state = EBorrowState.INITIALIZED;
-        if(state != EBorrowState.INITIALIZED) {
+        _state = EBorrowState.INITIALIZED;
+        if(_state != EBorrowState.INITIALIZED) {
             testValid = false;
             System.out.println("State of BorrowCTL is not INITIALIZED! -- FAIL");
         }
@@ -167,7 +168,7 @@ public class BorrowCTLTest {
     @Test
     public void testCardSwipedInitState() {
         // input for test of this function
-        state = EBorrowState.INITIALIZED; // just in case the test decides
+        _state = EBorrowState.INITIALIZED; // just in case the test decides
         // to take test functions at random
         boolean testValid = true; // to make sure test is valid by the end of test.
         
@@ -175,7 +176,7 @@ public class BorrowCTLTest {
                 + "\nto see if it meets the conditions.");
         
         //Now to test if state is indeed initialized
-        if(!(state.equals(EBorrowState.INITIALIZED))) {
+        if(!(_state.equals(EBorrowState.INITIALIZED))) {
             testValid = false;
             System.out.println("State of BorrowCTL is not INITIALIZED! -- FAIL");
         }
@@ -293,7 +294,35 @@ public class BorrowCTLTest {
 
     @Test
     public void testBookScanned() {
+        IBook book = EasyMock.createNiceMock(IBook.class);
+        boolean testValid = true;
         
+        System.out.println("\nThis test demonstrates the BookScanned function process,"
+                + "\nwhich involves a number of checks. In this case, we first check if"
+                + "\nthe book given by a barcode number exists, which should be true"
+                + "\nin this case.");
+        
+        if(book == null) {
+            testValid = false;
+            System.out.println("Book does not exist where it is supposed to exist! -- FAIL");
+        }
+        else
+            System.out.println("Book exists! -- PASS");
+        
+        System.out.println("Now we check if the book is available. This test is true if"
+                + "\nit is of book state AVAILABLE.");
+        
+        EasyMock.expect(book.getState()).andReturn(EBookState.AVAILABLE);
+        EasyMock.replay(book);
+        
+        EBookState bookState = book.getState();
+        
+        if(!(bookState.equals(EBookState.AVAILABLE))) {
+            testValid = false;
+            System.out.println("Book state is not AVAILABLE! -- FAIL");
+        }
+        else
+            System.out.println("Book state is AVAILABLE! -- PASS");
     }
 
     @Test

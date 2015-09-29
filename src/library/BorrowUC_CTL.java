@@ -29,23 +29,23 @@ public class BorrowUC_CTL implements ICardReaderListener,
 									 IScannerListener, 
 									 IBorrowUIListener {
 	
-	private ICardReader reader;
-	private IScanner scanner; 
-	private IPrinter printer; 
-	private IDisplay display;
+	private ICardReader _reader;
+	private IScanner _scanner; 
+	private IPrinter _printer; 
+	private IDisplay _display;
 	//private String state;
-	private int scanCount = 0;
-	private IBorrowUI ui;
-	private EBorrowState state; 
-	private IBookDAO bookDAO;
-	private IMemberDAO memberDAO;
-	private ILoanDAO loanDAO;
+	private int _scanCount = 0;
+	private IBorrowUI _ui;
+	private EBorrowState _state; 
+	private IBookDAO _bookDAO;
+	private IMemberDAO _memberDAO;
+	private ILoanDAO _loanDAO;
 	
 	//private List<IBook> bookList;
-	private List<ILoan> loanList;
-	private IMember borrower;
+	private List<ILoan> _loanList;
+	private IMember _borrower;
 	
-	private JPanel previous;
+	private JPanel _previous;
 
 
 	public BorrowUC_CTL(ICardReader reader, IScanner scanner, 
@@ -55,98 +55,98 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	    reader.addListener(this);
 	    scanner.addListener(this);
 	    
-		this.display = display;
-		this.ui = new BorrowUC_UI(this);
-		this.reader = reader;
-		this.scanner = scanner;
-		this.printer = printer;
-		this.memberDAO = memberDAO;
-		this.loanDAO = loanDAO;
-		this.bookDAO = bookDAO;
-		state = EBorrowState.CREATED;
+		this._display = display;
+		this._ui = new BorrowUC_UI(this);
+		this._reader = reader;
+		this._scanner = scanner;
+		this._printer = printer;
+		this._memberDAO = memberDAO;
+		this._loanDAO = loanDAO;
+		this._bookDAO = bookDAO;
+		_state = EBorrowState.CREATED;
 	}
 	
 	public void initialise() {
-	    if(state != EBorrowState.CREATED) {
+	    if(_state != EBorrowState.CREATED) {
 	        throw new RuntimeException("Borrow Book already created!");
 	    }
 	    
-		previous = display.getDisplay();
-		display.setDisplay((JPanel) ui, "Borrow UI");
+		_previous = _display.getDisplay();
+		_display.setDisplay((JPanel) _ui, "Borrow UI");
 		//bookList = new ArrayList<IBook>();
-		loanList = new ArrayList<ILoan>();
+		_loanList = new ArrayList<ILoan>();
 		
-		reader.setEnabled(true);
-		scanner.setEnabled(false);
+		_reader.setEnabled(true);
+		_scanner.setEnabled(false);
 	//	state = EBorrowState.INITIALIZED;
 	    setState(EBorrowState.INITIALIZED);
 	}
 	
 	public void close() {
-		display.setDisplay(previous, "Main Menu");
+		_display.setDisplay(_previous, "Main Menu");
 	}
 
 	@Override
 	public void cardSwiped(int memberID) {
 	    
-	    if(state != EBorrowState.INITIALIZED) {
-	        ui.displayErrorMessage("Borrow Book State not initialized!");
+	    if(_state != EBorrowState.INITIALIZED) {
+	        _ui.displayErrorMessage("Borrow Book State not initialized!");
 	    }
-	    else if(memberDAO.getMemberByID(memberID) == null) {
-	        ui.displayErrorMessage("Member does not exist!");
+	    else if(_memberDAO.getMemberByID(memberID) == null) {
+	        _ui.displayErrorMessage("Member does not exist!");
 	        setState(EBorrowState.INITIALIZED);
 	    }
-	    else if(reader == null) {
-	        ui.displayErrorMessage("Reader nor initialized or enabled!");
+	    else if(_reader == null) {
+	        _ui.displayErrorMessage("Reader nor initialized or enabled!");
 	    }
 	    else {
-    	    borrower = memberDAO.getMemberByID(memberID);
-    	    scanCount = loanDAO.findLoansByBorrower(borrower).size();
+    	    _borrower = _memberDAO.getMemberByID(memberID);
+    	    _scanCount = _loanDAO.findLoansByBorrower(_borrower).size();
     
-    	    boolean overdueLoans = borrower.hasOverDueLoans();
-    	    boolean atLoanLimit = borrower.hasReachedLoanLimit();
-    	    boolean hasFines = borrower.hasFinesPayable();
-    	    boolean overFineLimit = borrower.hasReachedFineLimit();
+    	    boolean overdueLoans = _borrower.hasOverDueLoans();
+    	    boolean atLoanLimit = _borrower.hasReachedLoanLimit();
+    	    boolean hasFines = _borrower.hasFinesPayable();
+    	    boolean overFineLimit = _borrower.hasReachedFineLimit();
     	    
-    	    if(borrower.getState().equals(EMemberState.BORROWING_ALLOWED)) {
-    	        reader.setEnabled(false);
-    	        scanner.setEnabled(true);
+    	    if(_borrower.getState().equals(EMemberState.BORROWING_ALLOWED)) {
+    	        _reader.setEnabled(false);
+    	        _scanner.setEnabled(true);
     	        setState(EBorrowState.SCANNING_BOOKS);
     	        
-    	        String memberName = borrower.getFirstName() + " " + borrower.getLastName();
-    	        ui.displayMemberDetails(memberID, memberName, borrower.getContactPhone());
+    	        String memberName = _borrower.getFirstName() + " " + _borrower.getLastName();
+    	        _ui.displayMemberDetails(memberID, memberName, _borrower.getContactPhone());
     	        
-    	        ui.displayScannedBookDetails("");
-    	        ui.displayPendingLoan("");
+    	        _ui.displayScannedBookDetails("");
+    	        _ui.displayPendingLoan("");
     	        if(hasFines)
-    	            ui.displayOutstandingFineMessage(borrower.getFineAmount());
+    	            _ui.displayOutstandingFineMessage(_borrower.getFineAmount());
     	        
-    	        List<ILoan> loans = borrower.getLoans();
+    	        List<ILoan> loans = _borrower.getLoans();
     	        String loanDetails = buildLoanListDisplay(loans);
-    	        ui.displayExistingLoan(loanDetails);
+    	        _ui.displayExistingLoan(loanDetails);
     	        
     	        
     	    }
     	    else {
-    	        reader.setEnabled(false);
-    	        scanner.setEnabled(false);
+    	        _reader.setEnabled(false);
+    	        _scanner.setEnabled(false);
     	        setState(EBorrowState.BORROWING_RESTRICTED);
     	        
-                String memberName = borrower.getFirstName() + " " + borrower.getLastName();
-                ui.displayMemberDetails(memberID, memberName, borrower.getContactPhone());
+                String memberName = _borrower.getFirstName() + " " + _borrower.getLastName();
+                _ui.displayMemberDetails(memberID, memberName, _borrower.getContactPhone());
                 
-                ui.displayScannedBookDetails("");
-                ui.displayPendingLoan(buildLoanListDisplay(loanDAO.findLoansByBorrower(borrower)));
+                _ui.displayScannedBookDetails("");
+                _ui.displayPendingLoan(buildLoanListDisplay(_loanDAO.findLoansByBorrower(_borrower)));
                 if(overFineLimit)
-                    ui.displayOverFineLimitMessage(borrower.getFineAmount());
+                    _ui.displayOverFineLimitMessage(_borrower.getFineAmount());
                 else if(hasFines)
-                    ui.displayOutstandingFineMessage(borrower.getFineAmount());
+                    _ui.displayOutstandingFineMessage(_borrower.getFineAmount());
                 
                 if(atLoanLimit)
-                    ui.displayAtLoanLimitMessage();
+                    _ui.displayAtLoanLimitMessage();
                 
                 if(overdueLoans)
-                    ui.displayOverDueMessage();
+                    _ui.displayOverDueMessage();
     	    }
 	    }
 	}
@@ -155,46 +155,46 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	
 	@Override
 	public void bookScanned(int barcode) {
-	    IBook book = bookDAO.getBookByID(barcode);
+	    IBook book = _bookDAO.getBookByID(barcode);
 	    if(book == null) { // if book does not exist
-	        scanner.setEnabled(true);
-	        reader.setEnabled(false);
-	        ui.displayErrorMessage("Book of this barcode id does not exist!");
+	        _scanner.setEnabled(true);
+	        _reader.setEnabled(false);
+	        _ui.displayErrorMessage("Book of this barcode id does not exist!");
 	        setState(EBorrowState.SCANNING_BOOKS);
 	    }
 	    else {
 	        EBookState bookState = book.getState();
 	        
 	        if(!(bookState.equals(EBookState.AVAILABLE))) {
-	            scanner.setEnabled(true);
-	            reader.setEnabled(false);
-	            ui.displayErrorMessage("Book is not available!");
+	            _scanner.setEnabled(true);
+	            _reader.setEnabled(false);
+	            _ui.displayErrorMessage("Book is not available!");
 	            setState(EBorrowState.SCANNING_BOOKS);
 	        }
 	        boolean loanExist = false;
 	        
-	        for(int i = 0; i < loanList.size(); i++) {
-	            if(!(loanList.isEmpty())) {
-	                if(loanList.get(i).getBook().equals(book))
+	        for(int i = 0; i < _loanList.size(); i++) {
+	            if(!(_loanList.isEmpty())) {
+	                if(_loanList.get(i).getBook().equals(book))
 	                    loanExist = true;
 	            }
 	        }
 	        
 	        if(loanExist) {
-	            scanner.setEnabled(true);
-                reader.setEnabled(false);
-                ui.displayErrorMessage("Book is already scanned!");
+	            _scanner.setEnabled(true);
+                _reader.setEnabled(false);
+                _ui.displayErrorMessage("Book is already scanned!");
                 setState(EBorrowState.SCANNING_BOOKS);
 	        }
 	        else {
-	            if(scanCount <= IMember.LOAN_LIMIT) {
-	                scanCount++;
-	                ILoan loan = loanDAO.createLoan(borrower, book);
-	                loanList.add(loan);
-	                ui.displayScannedBookDetails(book.toString());
-	                ui.displayPendingLoan(loan.toString());
-	                reader.setEnabled(false);
-	                scanner.setEnabled(true);
+	            if(_scanCount <= IMember.LOAN_LIMIT) {
+	                _scanCount++;
+	                ILoan loan = _loanDAO.createLoan(_borrower, book);
+	                _loanList.add(loan);
+	                _ui.displayScannedBookDetails(book.toString());
+	                _ui.displayPendingLoan(loan.toString());
+	                _reader.setEnabled(false);
+	                _scanner.setEnabled(true);
 	            
 	                setState(EBorrowState.SCANNING_BOOKS);
 	            }
@@ -208,8 +208,8 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 	
 	private void setState(EBorrowState state) {
-	    this.state = state;
-	    ui.setState(state);
+	    this._state = state;
+	    _ui.setState(state);
 	}
 
 	@Override
@@ -220,40 +220,40 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	@Override
 	public void scansCompleted() {
 	    setState(EBorrowState.CONFIRMING_LOANS);
-	    reader.setEnabled(false);
-	    scanner.setEnabled(false);
-        String loanDetails = buildLoanListDisplay(loanList);
-        ui.displayConfirmingLoan(loanDetails);
+	    _reader.setEnabled(false);
+	    _scanner.setEnabled(false);
+        String loanDetails = buildLoanListDisplay(_loanList);
+        _ui.displayConfirmingLoan(loanDetails);
 	}
 
 	@Override
 	public void loansConfirmed() {
-	    if(loanList.isEmpty()) {
-	        ui.displayErrorMessage("Loan List is empty!");
+	    if(_loanList.isEmpty()) {
+	        _ui.displayErrorMessage("Loan List is empty!");
 	        setState(EBorrowState.CONFIRMING_LOANS);
 	    }
 	    else {
-	        scanner.setEnabled(false);
-	        reader.setEnabled(false);
-	        for(int i = 0; i < loanList.size(); i++) {
-	            loanDAO.commitLoan(loanList.get(i));
+	        _scanner.setEnabled(false);
+	        _reader.setEnabled(false);
+	        for(int i = 0; i < _loanList.size(); i++) {
+	            _loanDAO.commitLoan(_loanList.get(i));
 	        }
-	        printer.print(buildLoanListDisplay(loanList));
+	        _printer.print(buildLoanListDisplay(_loanList));
 	        setState(EBorrowState.COMPLETED);
-	        display.setDisplay((JPanel) ui, "Main Menu");
+	        _display.setDisplay((JPanel) _ui, "Main Menu");
 	    }
 	}
 
 	@Override
 	public void loansRejected() {
-	    loanList = null; // empty it
-	    loanList = new ArrayList<ILoan>(); // then re-initialize it
-	    ui.displayMemberDetails(borrower.getID(), borrower.getFirstName() 
-	            + " " + borrower.getLastName(), borrower.getContactPhone());
-	    ui.displayExistingLoan(buildLoanListDisplay(loanDAO.findLoansByBorrower(borrower)));
-	    scanCount = loanDAO.findLoansByBorrower(borrower).size();
-	    scanner.setEnabled(true);
-	    reader.setEnabled(false);
+	    _loanList = null; // empty it
+	    _loanList = new ArrayList<ILoan>(); // then re-initialize it
+	    _ui.displayMemberDetails(_borrower.getID(), _borrower.getFirstName() 
+	            + " " + _borrower.getLastName(), _borrower.getContactPhone());
+	    _ui.displayExistingLoan(buildLoanListDisplay(_loanDAO.findLoansByBorrower(_borrower)));
+	    _scanCount = _loanDAO.findLoansByBorrower(_borrower).size();
+	    _scanner.setEnabled(true);
+	    _reader.setEnabled(false);
 	    setState(EBorrowState.SCANNING_BOOKS);
 	}
 

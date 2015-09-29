@@ -9,14 +9,14 @@ import library.interfaces.entities.IMember;
 
 public class Member implements IMember {
     
-    EMemberState memberState;
-    String firstName;
-    String lastName;
-    String contactPhone;
-    String emailAddress;
-    int id;
-    float totalFines;
-    List<ILoan> loans;
+    private EMemberState _memberState;
+    private String _firstName;
+    private String _lastName;
+    private String _contactPhone;
+    private String _emailAddress;
+    private int _id;
+    private float _totalFines;
+    private List<ILoan> _loans;
     
     public Member(String fn, String ln, String cp, String ea, int idn){
         if(fn == null || ln == null || cp == null) {
@@ -28,14 +28,14 @@ public class Member implements IMember {
             }
         }
         else {
-            this.memberState = EMemberState.BORROWING_ALLOWED;
-            this.firstName = fn;
-            this.lastName = ln;
-            this.contactPhone = cp;
-            this.emailAddress = ea;
-            this.id = idn;
-            this.totalFines = 0.00f;
-            this.loans = new ArrayList<ILoan>();
+            this._memberState = EMemberState.BORROWING_ALLOWED;
+            this._firstName = fn;
+            this._lastName = ln;
+            this._contactPhone = cp;
+            this._emailAddress = ea;
+            this._id = idn;
+            this._totalFines = 0.00f;
+            this._loans = new ArrayList<ILoan>();
         }
         
     }
@@ -43,8 +43,8 @@ public class Member implements IMember {
     @Override
     public boolean hasOverDueLoans() {
         boolean hasOverDueLoans = false;
-       for(int i = 0; i < loans.size(); i++) {
-           if(loans.get(i).isOverDue())
+       for(int i = 0; i < _loans.size(); i++) {
+           if(_loans.get(i).isOverDue())
                hasOverDueLoans = true;
        }
        return hasOverDueLoans;
@@ -52,7 +52,7 @@ public class Member implements IMember {
 
     @Override
     public boolean hasReachedLoanLimit() {
-        if(loans.size() >= IMember.LOAN_LIMIT)
+        if(_loans.size() >= IMember.LOAN_LIMIT)
             return true;
         else
             return false;
@@ -60,7 +60,7 @@ public class Member implements IMember {
 
     @Override
     public boolean hasFinesPayable() {
-        if(totalFines > 0f){
+        if(_totalFines > 0f){
             return true;
         }
         else {
@@ -70,7 +70,7 @@ public class Member implements IMember {
 
     @Override
     public boolean hasReachedFineLimit() {
-        if(totalFines > IMember.FINE_LIMIT) {
+        if(_totalFines > IMember.FINE_LIMIT) {
             return true;
         }
         else {
@@ -80,7 +80,7 @@ public class Member implements IMember {
 
     @Override
     public float getFineAmount() {
-        return totalFines;
+        return _totalFines;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class Member implements IMember {
             }
         }
         else {
-            this.totalFines += fine;
+            this._totalFines += fine;
         }
     }
 
@@ -108,7 +108,7 @@ public class Member implements IMember {
             //    e.printStackTrace();
             }
         }
-        else if(payment > this.totalFines) {
+        else if(payment > this._totalFines) {
             try {
                 throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
@@ -117,7 +117,7 @@ public class Member implements IMember {
             }
         }
         else {
-            this.totalFines -= payment;
+            this._totalFines -= payment;
         }
     }
 
@@ -131,7 +131,7 @@ public class Member implements IMember {
              //   e.printStackTrace();
             }
         }
-        else if(this.memberState == EMemberState.BORROWING_DISALLOWED) {
+        else if(this._memberState == EMemberState.BORROWING_DISALLOWED) {
             try {
                 throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
@@ -140,49 +140,49 @@ public class Member implements IMember {
             }
         }
         else {
-            this.loans.add(loan);
+            this._loans.add(loan);
         }
     }
 
     @Override
     public List<ILoan> getLoans() {
-        return loans;
+        return _loans;
     }
 
     @Override
     public void removeLoan(ILoan loan) {
-        this.loans.remove(loan);
+        this._loans.remove(loan);
         
     }
 
     @Override
     public EMemberState getState() {
-        return this.memberState;
+        return this._memberState;
     }
 
     @Override
     public String getFirstName() {
-        return firstName;
+        return _firstName;
     }
 
     @Override
     public String getLastName() {
-        return lastName;
+        return _lastName;
     }
 
     @Override
     public String getContactPhone() {
-        return contactPhone;
+        return _contactPhone;
     }
 
     @Override
     public String getEmailAddress() {
-        return emailAddress;
+        return _emailAddress;
     }
 
     @Override
     public int getID() {
-        return id;
+        return _id;
     }
 
     
