@@ -6,7 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ScanBookIntegrationTest {
+public class OperationIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
@@ -18,7 +18,6 @@ public class ScanBookIntegrationTest {
 
     @Test
     public void test() {
-        
     }
 
 }

@@ -6,9 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SwipeCardIntegrationTest {
-    
-    
+public class MemberDAOIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
@@ -20,7 +18,6 @@ public class SwipeCardIntegrationTest {
 
     @Test
     public void test() {
-        
     }
 
 }

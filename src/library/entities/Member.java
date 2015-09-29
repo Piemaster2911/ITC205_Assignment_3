@@ -21,8 +21,8 @@ public class Member implements IMember {
     public Member(String fn, String ln, String cp, String ea, int idn){
         if(fn == null || ln == null || cp == null) {
             try {
-                throw new Exception();
-            } catch (Exception e) {
+                throw new IllegalArgumentException();
+            } catch (IllegalArgumentException e) {
                 System.err.println("Cannot enter a member who has no first name, last name, or contact number!");
           //      e.printStackTrace();
             }
