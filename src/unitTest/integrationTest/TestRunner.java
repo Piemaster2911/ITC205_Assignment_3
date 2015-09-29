@@ -13,7 +13,7 @@ public class TestRunner {
     public static void main(String[] args) {
         System.out.println("Initializing Test...\n\n");
 
- //       runTest(JUnitCore.runClasses(BorrowCTLTest.class));
+        runTest(JUnitCore.runClasses(MemberEntityIntegrationTest.class));
         
         System.out.println("Test Runner completed!");
     }
