@@ -41,7 +41,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	private IMemberDAO memberDAO;
 	private ILoanDAO loanDAO;
 	
-	private List<IBook> bookList;
+	//private List<IBook> bookList;
 	private List<ILoan> loanList;
 	private IMember borrower;
 	
@@ -73,7 +73,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	    
 		previous = display.getDisplay();
 		display.setDisplay((JPanel) ui, "Borrow UI");
-		bookList = new ArrayList<IBook>();
+		//bookList = new ArrayList<IBook>();
 		loanList = new ArrayList<ILoan>();
 		
 		reader.setEnabled(true);
