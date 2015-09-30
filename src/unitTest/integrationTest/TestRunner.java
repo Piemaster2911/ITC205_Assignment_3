@@ -14,6 +14,8 @@ public class TestRunner {
         System.out.println("Initializing Test...\n\n");
 
         runTest(JUnitCore.runClasses(MemberEntityIntegrationTest.class));
+        runTest(JUnitCore.runClasses(MemberDAOIntegrationTest.class));
+        runTest(JUnitCore.runClasses(OperationIntegrationTest.class));
         
         System.out.println("Test Runner completed!");
     }

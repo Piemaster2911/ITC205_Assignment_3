@@ -370,8 +370,8 @@ public class MemberEntityIntegrationTest {
         loan.commit(1);
         member.addLoan(loan);
         
-        System.out.println("\nThis test demonstrates the function that returns"
-                + "\nthe loan list. This will test a list that contains one loan,"
+        System.out.println("\nThis test demonstrates the function getLoans()"
+                + "\nThis will test a list that contains one loan,"
                 + "\nand will return true if it returns the loan list with said"
                 + "loan.");
         
@@ -387,5 +387,124 @@ public class MemberEntityIntegrationTest {
         
         assertTrue(testValid);
     }
-
+    
+    @Test
+    public void testRemoveLoan() {
+        IBook book = new Book("Author Name", "Book Title", "Number Here", 1);
+        ILoan loan = new Loan(book, member, Date.valueOf("2015-08-29"), Date.valueOf("2015-09-29"));
+        loan.commit(1);
+        member.addLoan(loan);
+        
+        System.out.println("\nThis test demonstrates the process of removing"
+                + "\na loan by the function removeLoan()");
+        
+        member.removeLoan(loan);
+        boolean testValid = true;
+        
+        if(!loanList.isEmpty()) {
+            testValid = false;
+            System.out.println("Member's loan is not removed! -- FAIL");
+        }
+        else
+            System.out.println("Member's loan is removed! -- PASS");
+        
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testGetState() {
+        System.out.println("\nThis test demonstrates the getting of a member's"
+                + "\nstate.");
+        
+        boolean testValid = true;
+        
+        if(member.getState().equals(null)) {
+            testValid = false;
+            System.out.println("Member state is null! -- FAIL");
+        }
+        else
+            System.out.println("Member state is " + member.getState().toString() + "! -- PASS");
+        
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testGetFirstName() {
+        System.out.println("\nThis test demonstrates the getting of a member's"
+                + "\nfirst name.");
+        
+        boolean testValid = true;
+        
+        if(member.getFirstName().equals(null)) {
+            testValid = false;
+            System.out.println("Member first name is empty! -- FAIL");
+        }
+        else if(!(member.getFirstName().equals(firstName))) {
+            testValid = false;
+            System.out.println("Member first name does not match input variable value! -- FAIL");
+        }
+        else
+            System.out.println("Member first name matches input variable value! -- PASS");
+        
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testGetLastName() {
+        System.out.println("\nThis test demonstrates the getting of a member's"
+                + "\nlast name.");
+        
+        boolean testValid = true;
+        
+        if(member.getLastName().equals(null)) {
+            testValid = false;
+            System.out.println("Member last name is empty! -- FAIL");
+        }
+        else if(!(member.getLastName().equals(lastName))) {
+            testValid = false;
+            System.out.println("Member last name does not match input variable value! -- FAIL");
+        }
+        else
+            System.out.println("Member last name matches input variable value! -- PASS");
+        
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testGetContactNumber() {
+        System.out.println("\nThis test demonstrates the getting of a member's"
+                + "\ncontact number.");
+        
+        boolean testValid = true;
+        
+        if(member.getContactPhone().equals(null)) {
+            testValid = false;
+            System.out.println("Member phone number is empty! -- FAIL");
+        }
+        else if(!(member.getContactPhone().equals(contactPhone))) {
+            testValid = false;
+            System.out.println("Member phone number does not match input variable value! -- FAIL");
+        }
+        else
+            System.out.println("Member phone number matches input variable value! -- PASS");
+        
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testGetID() {
+        System.out.println("\nThis test demonstrates the getting of a member's id.");
+        
+        boolean testValid = true;
+        
+        if(member.getID() != id) {
+            testValid = false;
+            System.out.println("Member id did not match! -- FAIL");
+        }
+        else
+            System.out.println("Member id matches input variable value! -- PASS");
+        
+        assertTrue(testValid);
+    }
+    
 }
