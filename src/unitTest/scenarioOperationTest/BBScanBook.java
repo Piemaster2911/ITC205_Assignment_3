@@ -1,4 +1,4 @@
-package unitTest.scenarioTest;
+package unitTest.scenarioOperationTest;
 
 import static org.junit.Assert.*;
 

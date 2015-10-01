@@ -1,4 +1,4 @@
-package unitTest.scenarioTest;
+package unitTest.scenarioOperationTest;
 
 import static org.junit.Assert.*;
 
@@ -19,6 +19,7 @@ import library.daos.MemberDAO;
 import library.daos.MemberHelper;
 import library.entities.Loan;
 import library.hardware.CardReader;
+import library.hardware.Display;
 import library.hardware.Printer;
 import library.hardware.Scanner;
 import library.interfaces.EBorrowState;
@@ -43,6 +44,7 @@ public class BBConfirmLoans {
     ICardReader reader;
     IScanner scanner; 
     IPrinter printer; 
+    IDisplay displayMock;
     IDisplay display;
     int scanCount = 0;
     IBorrowUI ui;
@@ -60,7 +62,8 @@ public class BBConfirmLoans {
 
     @Before
     public void setUp() throws Exception {
-        display = EasyMock.createMock(IDisplay.class);
+        displayMock = EasyMock.createMock(IDisplay.class);
+        display = new Display();
         
         
         // build up the DAOs
@@ -196,6 +199,27 @@ public class BBConfirmLoans {
         else {
             System.out.println("loanList is empty! -- PASS");
         }
+        
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testTransitionToMainMenu() {
+        System.out.println("\nThis test demonstrates the process that occurs"
+                + "\nafter the loanConfirmed() method completes successfully,"
+                + "\nand returns to the main menu. This is simulated by"
+                + "\nthe state being changed to COMPLETED.");
+        
+        state = EBorrowState.COMPLETED;
+        //display.setDisplay((JPanel) ui, "Main Menu");
+        boolean testValid = true;
+        
+        if(!(state.equals(EBorrowState.COMPLETED))) {
+            testValid = false;
+            System.out.println("CTL state is not set to COMPLETED! -- FAIL");
+        }
+        else
+            System.out.println("CTL state is COMPLETED! -- PASS");
         
         assertTrue(testValid);
     }

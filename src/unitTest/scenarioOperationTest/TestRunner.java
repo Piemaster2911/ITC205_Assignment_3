@@ -1,4 +1,4 @@
-package unitTest.scenarioTest;
+package unitTest.scenarioOperationTest;
 
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;

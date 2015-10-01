@@ -17,7 +17,6 @@ import org.junit.Test;
 
 public class MemberDAOTest {
 
-    IMemberDAO memberDAOMock;
     MemberDAO memberDAO;
     String firstName = "Bob";
     String lastName = "Smith";
@@ -26,13 +25,11 @@ public class MemberDAOTest {
     
     @Before
     public void setUp() {
-        memberDAOMock = EasyMock.createMock(IMemberDAO.class);
         memberDAO = new MemberDAO(new MemberHelper());
     }
     
     @After
     public void refreshMocks() {
-        EasyMock.reset(memberDAOMock);
     }
     
     @Test
