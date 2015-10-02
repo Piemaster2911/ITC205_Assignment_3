@@ -1,4 +1,4 @@
-package unitTest.scenarioOperationTest;
+package unitTest.scenarioTest;
 
 public class MessageUtil {
     private String message;

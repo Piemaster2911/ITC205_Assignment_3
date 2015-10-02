@@ -1,9 +1,10 @@
-package unitTest.scenarioOperationTest;
+package unitTest.operationTest;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -26,8 +27,6 @@ import library.interfaces.IBorrowUI;
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.ILoanDAO;
 import library.interfaces.daos.IMemberDAO;
-import library.interfaces.entities.EBookState;
-import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
 import library.interfaces.hardware.ICardReader;
@@ -40,11 +39,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BBScanBook {
+public class BBConfirmLoans {
     int barcode;
     ICardReader reader;
     IScanner scanner; 
     IPrinter printer; 
+    IDisplay displayMock;
     IDisplay display;
     int scanCount = 0;
     IBorrowUI ui;
@@ -62,7 +62,8 @@ public class BBScanBook {
 
     @Before
     public void setUp() throws Exception {
-        display = EasyMock.createMock(IDisplay.class);
+        displayMock = EasyMock.createMock(IDisplay.class);
+        display = new Display();
         
         
         // build up the DAOs
@@ -120,6 +121,8 @@ public class BBScanBook {
         
         for(int i = 0; i < loanDAO.listLoans().size(); i++) {
             loanDAO.commitLoan(loanDAO.listLoans().get(i));
+            loanDAO.listLoans().get(i).getBook().borrow(loanDAO.listLoans().get(i));
+            loanDAO.listLoans().get(i).getBorrower().addLoan(loanDAO.getLoanByID(i));
         }
         
         memberDAO.getMemberByID(6).addFine(4f);
@@ -128,7 +131,7 @@ public class BBScanBook {
         reader = new CardReader();
         scanner = new Scanner();
         printer = new Printer();
-
+        
         ctl = new BorrowUC_CTL(reader, scanner, printer, display, bookDAO, loanDAO, memberDAO);
         ui = new BorrowUC_UI(ctl);
         state = EBorrowState.SCANNING_BOOKS; // as we're starting at start of scanBook()
@@ -140,180 +143,87 @@ public class BBScanBook {
         
     }
 
+
     @After
     public void tearDown() throws Exception {
     }
+    
 
     @Test
-    public void testScanBookIncorrectBarcode() {
-        System.out.println("\nThis test will demonstrate a situation where a barcode"
-                + "\nscanned in for a book does not exist.");
+    public void testConfirmLoans() {
+        System.out.println("\nThis test demonstrate the loansConfirmed() method"
+                + "\nwhich in this case has a valid confirming loan list.");
         
-        barcode = 99; // give barcode scanned a ludicrous value
-        
-        IBook book = bookDAO.getBookByID(barcode);
-        boolean testValid = true;
-        
-        if(book != null) {
-            testValid = false;
-            System.out.println("Book with scancode " + barcode + " exists, even though it should not! -- FAIL");
-        }
-        else
-            System.out.println("Book with scancode " + barcode + " does not exist! -- PASS");
-        
-        assertTrue(testValid);
-    }
-    
-    @Test
-    public void testScanBookCorrectBarcode() {
-        System.out.println("\nThis test will demonstrate a situation where a barcode"
-                + "\nscanned in for a book does exist, and is available.");
-        
-        barcode = 2; // give barcode scanned a ludicrous value
-        
-        IBook book = bookDAO.getBookByID(barcode);
-        boolean testValid = true;
-        
-        if(book == null) {
-            testValid = false;
-            System.out.println("Book with scancode " + barcode + " does not exists, even though it should! -- FAIL");
-        }
-        else if(book.getState() != EBookState.AVAILABLE) {
-            testValid = false;
-            System.out.println("Book with scancode " + barcode + " exists, but is NOT_AVAILABLE! -- FAIL");
-        }
-        else
-            System.out.println("Book with scancode " + barcode + " exist and is AVAILABLE! -- PASS");
-        
-        assertTrue(testValid);
-    }
-    
-    @Test
-    public void testScanBookAlreadyOnPendingList() {
-        System.out.println("\nThis test will demonstrate a situation where a barcode"
-                + "\nscanned in for a book is already scanned onto the pending loan list.");
-        
-        barcode = 2;
         Date currentDate = new Date();
         Date dueDate = currentDate;
         dueDate.setTime((((1000*60)*60)*24)*14);
-        IBook book = bookDAO.getBookByID(barcode);
-        ILoan loan = new Loan(book, borrower, currentDate, dueDate);
+
+        ILoan loan = new Loan(bookDAO.getBookByID(11), borrower, currentDate, dueDate);
         loanList.add(loan);
+        loanDAO.commitLoan(loan);
+        loan = new Loan(bookDAO.getBookByID(8), borrower, currentDate, dueDate);
+        loanList.add(loan);
+        loanDAO.commitLoan(loan);
         
-        boolean testValid = false;
+        
+        printer.print("Loans here!!!");
+        state = EBorrowState.COMPLETED;
+        scanner.setEnabled(false);
+        reader.setEnabled(false);
+        
+        boolean testValid = true;
+        
+        List<ILoan> loanList2 = loanDAO.findLoansByBorrower(borrower);
+        
+        if(loanList2.isEmpty()) {
+            testValid = false;
+            System.out.println("Loan list for borrower " + borrower.getFirstName() + " " + borrower.getLastName() + " is empty! -- FAIL");
+        }
+        else
+            System.out.println("Loan list for borrower " + borrower.getFirstName() + " " + borrower.getLastName() + " is not empty! -- PASS");
+        
+        assertTrue(testValid);
+    }
+    
+    @Test
+    public void testConfirmLoansEmptyList() {
+        System.out.println("\nThis test demonstrates the loanConfirmed() method"
+                + "\nwith an empty list. It should return to the previous screen"
+                + "\nwhen this occurs.");
+        
+        boolean testValid = true;
+        state = EBorrowState.SCANNING_BOOKS;
         
         if(!loanList.isEmpty()) {
-            for(int i = 0; i < loanList.size(); i++) {
-                if(loanList.get(i).equals(loan)) {
-                    testValid = true;
-                }
-            }
-        }
-        
-        if(testValid)
-            System.out.println("Loan already exists in loanList! -- PASS");
-        else
-            System.out.println("Loan does not exist in loanList! -- FAIL");
-        
-        assertTrue(testValid);
-    }
-    
-    @SuppressWarnings("unused")
-    @Test
-    public void testScanBookNotAvailable() {
-        System.out.println("\nThis test will demonstrate a situation where barcode"
-                + "\nscanned in for book that is already on loan and is not available.");
-        
-        barcode = 2;
-        Date currentDate = new Date();
-        Date dueDate = currentDate;
-        dueDate.setTime((((1000*60)*60)*24)*14);
-        
-        IBook book = bookDAO.getBookByID(barcode);
-        // let's assume that this book is on loan
-        ILoan loan = new Loan(book, borrower, currentDate, dueDate);
-        book.borrow(loan);
-        boolean testValid = true;
-        
-        if(book == null) {
             testValid = false;
-            System.out.println("Book with scancode " + barcode + " does not exists, even though it should! -- FAIL");
+            System.out.println("loanList is not empty when it should! -- FAIL");
         }
-        else if(book.getState() == EBookState.AVAILABLE) {
-            testValid = false;
-            System.out.println("Book with scancode " + barcode + " exists, but is AVAILABLE! -- FAIL");
+        else {
+            System.out.println("loanList is empty! -- PASS");
         }
-        else
-            System.out.println("Book with scancode " + barcode + " exist and is NOT_AVAILABLE! -- PASS");
-        
-        assertTrue(testValid);
-        
-    }
-    
-    @Test
-    public void testScanBookMemberBelowBorrowLimit() {
-        // using default member, who is always eligible
-        System.out.println("\nThis test demonstrates the case where the member is"
-                + "\nbelow the borrowing limit.");
-        
-        boolean testValid = true;
-        ILoan loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(2));
-        bookDAO.getBookByID(2).borrow(loan);
-        loanList.add(loan);
-        loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(8));
-        bookDAO.getBookByID(8).borrow(loan);
-        loanList.add(loan);
-        
-        if(loanList.size() >= IMember.LOAN_LIMIT) {
-            testValid = false;
-            System.out.println("Member at or exceeded loan limit! -- FAIL");
-        }
-        else
-            System.out.println("Member not at or exceeded loan limit! -- PASS");
         
         assertTrue(testValid);
     }
     
     @Test
-    public void testScanBookMemberAboveLimit() {
-        System.out.println("\nThis test demonstrates a hypothetical case where the"
-                + "\nmember manages to borrow more books than the loan limit.");
+    public void testTransitionToMainMenu() {
+        System.out.println("\nThis test demonstrates the process that occurs"
+                + "\nafter the loanConfirmed() method completes successfully,"
+                + "\nand returns to the main menu. This is simulated by"
+                + "\nthe state being changed to COMPLETED.");
         
+        state = EBorrowState.COMPLETED;
+        //display.setDisplay((JPanel) ui, "Main Menu");
         boolean testValid = true;
-        ILoan loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(2));
-        bookDAO.getBookByID(2).borrow(loan);
-        loanList.add(loan);
-        loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(8));
-        bookDAO.getBookByID(8).borrow(loan);
-        loanList.add(loan);
-        loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(9));
-        bookDAO.getBookByID(9).borrow(loan);
-        loanList.add(loan);
-        loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(10));
-        bookDAO.getBookByID(10).borrow(loan);
-        loanList.add(loan);
-        loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(11));
-        bookDAO.getBookByID(11).borrow(loan);
-        loanList.add(loan);
-        loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(12));
-        bookDAO.getBookByID(12).borrow(loan);
-        loanList.add(loan);
-        loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(18));
-        bookDAO.getBookByID(18).borrow(loan);
-        loanList.add(loan);
-        loan = loanDAO.createLoan(borrower, bookDAO.getBookByID(20));
-        bookDAO.getBookByID(20).borrow(loan);
-        loanList.add(loan);
         
-        if(loanList.size() < IMember.LOAN_LIMIT) {
+        if(!(state.equals(EBorrowState.COMPLETED))) {
             testValid = false;
-            System.out.println("Member not at or exceeded loan limits!");
+            System.out.println("CTL state is not set to COMPLETED! -- FAIL");
         }
         else
-            System.out.println("Member at or exceeded loan limits!");
+            System.out.println("CTL state is COMPLETED! -- PASS");
         
         assertTrue(testValid);
     }
-    
+
 }

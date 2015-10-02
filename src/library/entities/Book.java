@@ -43,11 +43,11 @@ public class Book implements IBook {
 		if (loan == null) {
 			throw new IllegalArgumentException(String.format("Book: borrow : Bad parameter: loan cannot be null"));
 		}
-		if (!(state == EBookState.AVAILABLE)) {
+		if (!(this.state == EBookState.AVAILABLE)) {
 			throw new RuntimeException(String.format("Illegal operation in state : %s", state));
 		}
 		this.loan = loan;
-		state = EBookState.ON_LOAN;
+		this.state = EBookState.ON_LOAN;
 
 	}
 

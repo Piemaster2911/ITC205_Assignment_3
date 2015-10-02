@@ -101,7 +101,10 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	    }
 	    else {
     	    _borrower = _memberDAO.getMemberByID(memberID);
-    	    _scanCount = _loanDAO.findLoansByBorrower(_borrower).size();
+    	    if(_loanDAO.findLoansByBorrower(_borrower) != null)
+    	        _scanCount = _loanDAO.findLoansByBorrower(_borrower).size();
+    	    else
+    	        _scanCount = 0;
     
     	    boolean overdueLoans = _borrower.hasOverDueLoans();
     	    boolean atLoanLimit = _borrower.hasReachedLoanLimit();
@@ -165,12 +168,13 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	    else {
 	        EBookState bookState = book.getState();
 	        
-	        if(!(bookState.equals(EBookState.AVAILABLE))) {
+	        if(!(bookState.equals(EBookState.AVAILABLE) || (bookState.equals(EBookState.ON_LOAN)))) {
 	            _scanner.setEnabled(true);
 	            _reader.setEnabled(false);
 	            _ui.displayErrorMessage("Book is not available!");
 	            setState(EBorrowState.SCANNING_BOOKS);
 	        }
+	        
 	        boolean loanExist = false;
 	        
 	        for(int i = 0; i < _loanList.size(); i++) {
